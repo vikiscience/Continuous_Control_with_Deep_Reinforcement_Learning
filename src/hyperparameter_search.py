@@ -19,8 +19,8 @@ class MyNavigator(BaseEstimator, ClassifierMixin):
                  batch_size: int = const.batch_size,
                  expl_noise: int = const.expl_noise,
                  model_learning_rate: float = const.model_learning_rate,
-                 model_fc1_num: int = const.model_fc1_num,
-                 model_fc2_num: int = const.model_fc2_num
+                 num_fc_actor: int = const.num_fc_actor,
+                 num_fc_critic: int = const.num_fc_critic
                  ):
 
         # algo params
@@ -36,14 +36,14 @@ class MyNavigator(BaseEstimator, ClassifierMixin):
 
         # model params
         self.model_learning_rate = model_learning_rate
-        self.model_fc1_num = model_fc1_num
-        self.model_fc2_num = model_fc2_num
+        self.num_fc_actor = num_fc_actor
+        self.num_fc_critic = num_fc_critic
 
     def fit(self, i: int, env: utils_env.Environment):
         self.ag = agent.DRLAgent(state_size, action_size,
                                  self.memory_size, self.gamma, self.batch_size,
                                  self.expl_noise, self.model_learning_rate,
-                                 self.model_fc1_num, self.model_fc2_num)
+                                 self.num_fc_actor, self.num_fc_critic)
         self.ag.set_model_path(i)  # save each candidate's model separately
 
         self.al = algo.DRLAlgo(env, self.ag, self.num_episodes)
@@ -78,8 +78,8 @@ def grid_search():
         'gamma': [0.95, 0.9],
         'update_target_each_iter': [2, 4, 8, 16],
         'model_learning_rate': [0.001, 0.0001, 0.00001],
-        'model_fc1_num': [32, 20],
-        'model_fc2_num': [16, 10],
+        'num_fc_actor': [32, 20],
+        'num_fc_critic': [16, 10],
         'num_episodes': [625, 700, 1000, 2000],
         'memory_size': [20000, 40000]
     }

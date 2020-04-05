@@ -32,8 +32,8 @@ expl_noise = 0.1
 
 # model params
 model_learning_rate = 0.0001
-model_fc1_num = 32
-model_fc2_num = 16
+num_fc_actor = 32
+num_fc_critic = 16
 
 
 def myprint(*args, **kwargs):

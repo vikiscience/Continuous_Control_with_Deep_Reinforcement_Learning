@@ -12,12 +12,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class Actor(nn.Module):
-    def __init__(self, state_dim, action_dim, max_action):
+    def __init__(self, state_dim, action_dim, max_action, num_fc=256):
         super(Actor, self).__init__()
 
-        self.l1 = nn.Linear(state_dim, 256)
-        self.l2 = nn.Linear(256, 256)
-        self.l3 = nn.Linear(256, action_dim)
+        self.l1 = nn.Linear(state_dim, num_fc)
+        self.l2 = nn.Linear(num_fc, num_fc)
+        self.l3 = nn.Linear(num_fc, action_dim)
 
         self.max_action = max_action
 
@@ -28,18 +28,18 @@ class Actor(nn.Module):
 
 
 class Critic(nn.Module):
-    def __init__(self, state_dim, action_dim):
+    def __init__(self, state_dim, action_dim, num_fc=256):
         super(Critic, self).__init__()
 
         # Q1 architecture
-        self.l1 = nn.Linear(state_dim + action_dim, 256)
-        self.l2 = nn.Linear(256, 256)
-        self.l3 = nn.Linear(256, 1)
+        self.l1 = nn.Linear(state_dim + action_dim, num_fc)
+        self.l2 = nn.Linear(num_fc, num_fc)
+        self.l3 = nn.Linear(num_fc, 1)
 
         # Q2 architecture
-        self.l4 = nn.Linear(state_dim + action_dim, 256)
-        self.l5 = nn.Linear(256, 256)
-        self.l6 = nn.Linear(256, 1)
+        self.l4 = nn.Linear(state_dim + action_dim, num_fc)
+        self.l5 = nn.Linear(num_fc, num_fc)
+        self.l6 = nn.Linear(num_fc, 1)
 
     def forward(self, state, action):
         sa = torch.cat([state, action], 1)
@@ -72,20 +72,21 @@ class TD3(object):
             tau=0.005,
             policy_noise=0.2,
             noise_clip=0.5,
-            policy_freq=2
+            policy_freq=2,
+            num_fc_actor=256,
+            num_fc_critic=256
     ):
 
-        print('Actor')
-        self.actor = Actor(state_dim, action_dim, max_action).to(device)
-        self.actor_target = Actor(state_dim, action_dim, max_action).to(device)  # copy.deepcopy(self.actor) todo
+        self.actor = Actor(state_dim, action_dim, max_action, num_fc_actor).to(device)
+        self.model_summary(self.actor, title='Actor')
+        self.actor_target = Actor(state_dim, action_dim, max_action, num_fc_actor).to(device)  # copy.deepcopy(self.actor) todo
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=3e-4)
 
-        print('Critic')
-        self.critic = Critic(state_dim, action_dim).to(device)
-        self.critic_target = Critic(state_dim, action_dim).to(device)  # copy.deepcopy(self.critic) todo
+        self.critic = Critic(state_dim, action_dim, num_fc_critic).to(device)
+        self.model_summary(self.actor, title='Critic')
+        self.critic_target = Critic(state_dim, action_dim, num_fc_critic).to(device)  # copy.deepcopy(self.critic) todo
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=3e-4)
 
-        print('-----')
         self.max_action = max_action
         self.discount = discount
         self.tau = tau
@@ -164,3 +165,31 @@ class TD3(object):
         self.actor.load_state_dict(torch.load(filename + "_actor"))
         self.actor_optimizer.load_state_dict(torch.load(filename + "_actor_optimizer"))
         self.actor_target = copy.deepcopy(self.actor)
+
+    def model_summary(self, model, title='Model'):
+        print("model_summary --> " + title)
+        print()
+        print("Layer_name" + "\t" * 7 + "Number of Parameters")
+        print("=" * 100)
+        model_parameters = [layer for layer in model.parameters() if layer.requires_grad]
+        layer_name = [child for child in model.children()]
+        j = 0
+        total_params = 0
+        #print("\t" * 10)
+        for i in layer_name:
+            #print()
+            param = 0
+            try:
+                bias = (i.bias is not None)
+            except:
+                bias = False
+            if not bias:
+                param = model_parameters[j].numel() + model_parameters[j + 1].numel()
+                j = j + 2
+            else:
+                param = model_parameters[j].numel()
+                j = j + 1
+            print(str(i) + "\t" * 3 + str(param))
+            total_params += param
+        print("=" * 100)
+        print(f"Total Params:{total_params}")

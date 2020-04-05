@@ -19,8 +19,8 @@ class DRLAgent:
                  batch_size: int = const.batch_size,
                  expl_noise: int = const.expl_noise,
                  model_learning_rate: float = const.model_learning_rate,
-                 model_fc1_num: int = const.model_fc1_num,
-                 model_fc2_num: int = const.model_fc2_num
+                 num_fc_actor: int = const.num_fc_actor,
+                 num_fc_critic: int = const.num_fc_critic
                  ):
 
         # agent params
@@ -34,11 +34,12 @@ class DRLAgent:
 
         # model params
         self.model_learning_rate = model_learning_rate
-        self.model_fc1_num = model_fc1_num
-        self.model_fc2_num = model_fc2_num
+        self.num_fc_actor = num_fc_actor
+        self.num_fc_critic = num_fc_critic
 
         self.policy = models.TD3(state_dim=self.num_states, action_dim=self.num_actions,
-                                 max_action=const.max_action, discount=self.gamma)
+                                 max_action=const.max_action, discount=self.gamma,
+                                 num_fc_actor=self.num_fc_actor, num_fc_critic=self.num_fc_critic)
 
     def act(self, states, t):
         # Select action randomly or according to policy
