@@ -18,10 +18,11 @@ action_size = 4
 max_action = 1.
 episode_length = 300
 verbose = False
+high_score = 30
 
 # algo params
-num_episodes = 2000
-policy_eval_freq = 10
+num_episodes = 500 #2000
+policy_eval_freq = 50
 
 # agent params
 memory_size = 20000

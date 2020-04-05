@@ -16,8 +16,12 @@ def plot_history_rolling_mean(hist, N=const.rolling_mean_N, fp=const.file_path_i
     plt.plot(hist, c='darkorchid', marker='.', markevery=[-1])
     plt.plot(y, c='blue', marker='.', markevery=[-1])
 
+    # plot line to signify the aimed high score
+    x1, x2 = 0, len(hist)
+    y1, y2 = const.high_score, const.high_score
+    plt.plot([x1, x2], [y1, y2], color='k', linestyle='--', linewidth=1)
+
     # annotate last_history and last_rolling point
-    #last_points = [(len(hist) - 1, hist[-1]), (len(hist) - 1, y.iloc[-1])]
     last_points = [(len(hist) - 1, hist[-1])]
     if not y.empty:
         last_points.append((len(hist) - 1, y.iloc[-1]))
