@@ -51,7 +51,7 @@ class DRLAlgo:
                 self.agent.do_stuff(states[0], actions[0], rewards[0], next_states[0], dones[0], t)  # todo [0]
 
                 states = next_states
-                scores += rewards  # todo
+                scores += rewards
                 t += 1
 
                 if np.any(dones):
@@ -60,7 +60,6 @@ class DRLAlgo:
             score = np.mean(scores[-1])  # mean of last scores over all agents todo
             print("\r -> Episode: {}/{}, score: {}".format(e + 1, self.num_episodes, score), end='')
             history.append(score)
-            print('\n')
 
             # Evaluate episode
             if (e + 1) % self.policy_eval_freq == 0:
@@ -86,9 +85,10 @@ class DRLAlgo:
         states = env_info.vector_observations  # get the current state (for each agent)
         scores = np.zeros(const.num_agents)  # initialize the score (for each agent)
         t = 0
+        i = self.agent.start_policy_training_iter + 1  # set high i to avoid random actions in the beginning
+
         while True:
-            actions = self.agent.act(states, t)  # select an action (for each agent) todo
-            actions = np.clip(actions, -1, 1)  # all actions between -1 and 1
+            actions = self.agent.act(states, i)  # select an action (for each agent)
             env_info = self.env.step(actions)[self.brain_name]  # send all actions to tne environment
             next_states = env_info.vector_observations  # get next state (for each agent)
             rewards = env_info.rewards  # get reward (for each agent)
@@ -99,7 +99,8 @@ class DRLAlgo:
             if np.any(dones):  # exit loop if episode finished
                 break
 
-        print("Scores: {}".format(scores))
+        score = np.mean(scores)  # mean of scores over all agents
+        print("Score: {}".format(score))
 
         self.env.close()
 
@@ -109,7 +110,7 @@ class DRLAlgo:
 
     # Runs policy for X episodes and returns average reward
     # A fixed seed is used for the eval environment
-    def eval_policy(self, policy, seed, eval_episodes=10):
+    def eval_policy(self, policy, seed, eval_episodes=const.rolling_mean_N):
         avg_reward = 0.
         for _ in range(eval_episodes):
             env_info = self.env.reset(train_mode=True)[self.brain_name]
