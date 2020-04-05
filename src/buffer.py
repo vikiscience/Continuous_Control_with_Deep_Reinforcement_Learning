@@ -5,9 +5,10 @@ import numpy as np
 import random
 import torch
 
+device = 'cpu'  # torch.device("cuda" if torch.cuda.is_available() else "cpu") todo
+
 
 class ReplayBuffer:
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def __init__(self, memory_size: int = const.memory_size):
         self.memory = deque(maxlen=memory_size)
@@ -27,10 +28,10 @@ class ReplayBuffer:
         reward_batch = reward_batch.reshape(-1, 1)  # set n_dims to 1
         done_batch = done_batch.reshape(-1, 1)  # set n_dims to 1
 
-        not_dones = 1. - done_batch  # invert bool values for fornula use
-        t_states = torch.FloatTensor(states_batch).to(self.device)
-        t_actions = torch.FloatTensor(action_batch).to(self.device)
-        t_rewards = torch.FloatTensor(reward_batch).to(self.device)
-        t_next_states = torch.FloatTensor(next_states_batch).to(self.device)
-        t_not_dones = torch.FloatTensor(not_dones).to(self.device)
+        not_dones = 1. - done_batch  # invert bool values for formula use
+        t_states = torch.FloatTensor(states_batch).to(device)
+        t_actions = torch.FloatTensor(action_batch).to(device)
+        t_rewards = torch.FloatTensor(reward_batch).to(device)
+        t_next_states = torch.FloatTensor(next_states_batch).to(device)
+        t_not_dones = torch.FloatTensor(not_dones).to(device)
         return t_states, t_actions, t_next_states, t_rewards, t_not_dones  # this order for usage in 'models.py'
