@@ -62,11 +62,11 @@ class DRLAgent:
             self.policy.train(self.memory, self.batch_size)
 
     def load(self):
-        print('Loading model from:', self.model_path)
+        const.myprint('Loading model from:', self.model_path)
         self.policy.load(str(self.model_path))
 
     def save(self):
-        print('Saving model to:', self.model_path)
+        const.myprint('Saving model to:', self.model_path)
         self.policy.save(str(self.model_path))
 
     def set_model_path(self, i):
