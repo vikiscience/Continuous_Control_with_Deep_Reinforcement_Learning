@@ -10,10 +10,7 @@ class DRLAlgo:
 
     def __init__(self, env, agent,
                  num_episodes: int = const.num_episodes,
-                 eps_0: float = const.eps_0,
-                 eps_decay_factor: float = const.eps_decay_factor,
-                 eps_min: float = const.eps_min,
-                 eps_test: float = const.eps_test):
+                 policy_eval_freq: int = const.policy_eval_freq):
         self.env = env
         self.brain_name = env.brain_names[0]
         self.agent = agent
@@ -22,11 +19,7 @@ class DRLAlgo:
 
         # algo params
         self.num_episodes = num_episodes
-        self.eps_0 = eps_0
-        self.eps_decay_factor = eps_decay_factor
-        self.eps_min = eps_min
-        self.eps_test = eps_test
-        self.eval_freq = 5  # todo
+        self.policy_eval_freq = policy_eval_freq
 
     def train(self, with_close=True):
         print('Training ...')
@@ -64,16 +57,15 @@ class DRLAlgo:
                 if np.any(dones):
                     break
 
-            score = np.mean(scores[-1])  # mean of last scores todo
+            score = np.mean(scores[-1])  # mean of last scores over all agents todo
             print("\r -> Episode: {}/{}, score: {}".format(e + 1, self.num_episodes, score), end='')
             history.append(score)
+            print('\n')
 
             # Evaluate episode
-            if (e + 1) % self.eval_freq == 0:
+            if (e + 1) % self.policy_eval_freq == 0:
                 avg_reward = self.eval_policy(self.agent.policy, const.random_seed)
                 evaluations.append(avg_reward)
-                # np.save(f"./results/{file_name}", evaluations)
-                # if args.save_model: policy.save(f"./models/{file_name}")
 
             if (e + 1) % 100 == 0 or e + 1 == self.num_episodes:
                 self.agent.save()
@@ -93,8 +85,9 @@ class DRLAlgo:
         env_info = self.env.reset(train_mode=False)[self.brain_name]  # reset the environment
         states = env_info.vector_observations  # get the current state (for each agent)
         scores = np.zeros(const.num_agents)  # initialize the score (for each agent)
+        t = 0
         while True:
-            actions = self.agent.act(states, eps=self.eps_test)  # select an action (for each agent) todo
+            actions = self.agent.act(states, t)  # select an action (for each agent) todo
             actions = np.clip(actions, -1, 1)  # all actions between -1 and 1
             env_info = self.env.step(actions)[self.brain_name]  # send all actions to tne environment
             next_states = env_info.vector_observations  # get next state (for each agent)
@@ -102,6 +95,7 @@ class DRLAlgo:
             dones = env_info.local_done  # see if episode has finished
             scores += rewards  # update the score (for each agent)
             states = next_states  # roll over states to next time step
+            t += 1
             if np.any(dones):  # exit loop if episode finished
                 break
 

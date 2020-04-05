@@ -21,18 +21,13 @@ verbose = False
 
 # algo params
 num_episodes = 2000
-eps_0 = 0.9
-eps_decay_factor = 0.95
-eps_min = 0.01
-eps_test = 0.05
-expl_noise = 0.1
+policy_eval_freq = 10
 
 # agent params
-use_double_dqn = False
 memory_size = 20000
-update_target_each_iter = 4
 gamma = 0.95
 batch_size = 128
+expl_noise = 0.1
 
 # model params
 model_learning_rate = 0.0001

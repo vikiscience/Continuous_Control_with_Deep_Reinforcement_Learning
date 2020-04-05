@@ -9,16 +9,15 @@ import torch
 torch.random.manual_seed(const.random_seed)  # todo
 
 
-class DQNAgent:
+class DRLAgent:
     model_path = const.file_path_model
 
     def __init__(self, num_states: int = const.state_size,
                  num_actions: int = const.action_size,
-                 use_double_dqn: bool = const.use_double_dqn,
                  memory_size: int = const.memory_size,
-                 update_target_each_iter: int = const.update_target_each_iter,
                  gamma: float = const.gamma,
                  batch_size: int = const.batch_size,
+                 expl_noise: int = const.expl_noise,
                  model_learning_rate: float = const.model_learning_rate,
                  model_fc1_num: int = const.model_fc1_num,
                  model_fc2_num: int = const.model_fc2_num
@@ -27,28 +26,28 @@ class DQNAgent:
         # agent params
         self.num_states = num_states
         self.num_actions = num_actions
-        self.use_double_dqn = use_double_dqn
         self.memory = buffer.ReplayBuffer(memory_size)
-        self.update_target_each_iter = update_target_each_iter
         self.gamma = gamma
         self.batch_size = batch_size
-        self.start_timesteps = batch_size  # todo
+        self.expl_noise = expl_noise
+        self.start_policy_training_iter = batch_size  # start training after: buffer_size >= batch_size
 
         # model params
         self.model_learning_rate = model_learning_rate
         self.model_fc1_num = model_fc1_num
         self.model_fc2_num = model_fc2_num
 
-        self.policy = models.TD3(state_dim=self.num_states, action_dim=self.num_actions, max_action=const.max_action)
+        self.policy = models.TD3(state_dim=self.num_states, action_dim=self.num_actions,
+                                 max_action=const.max_action, discount=self.gamma)
 
     def act(self, states, t):
         # Select action randomly or according to policy
-        if t < self.start_timesteps:
+        if t < self.start_policy_training_iter:
             action = np.random.randn(const.num_agents, self.num_actions)
         else:
             action = (
                     self.policy.select_action(np.array(states[0]))  # todo [0]
-                    + np.random.normal(0, const.max_action * const.expl_noise, size=self.num_actions)
+                    + np.random.normal(0, const.max_action * self.expl_noise, size=self.num_actions)
             )
         actions = action.reshape(1, -1)
         actions = np.clip(actions, - const.max_action, const.max_action)  # all actions between -1 and 1
@@ -59,7 +58,7 @@ class DQNAgent:
         self.memory.append((state, action, reward, next_state, done))  # memorize
 
         # Train agent after collecting sufficient data
-        if t >= self.start_timesteps:
+        if t >= self.start_policy_training_iter:
             self.policy.train(self.memory, self.batch_size)
 
     def load(self):

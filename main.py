@@ -43,7 +43,7 @@ def train_default_algo():
     env = utils_env.Environment()
     print('Woisserdenn?')  # todo
     # use default params
-    ag = agent.DQNAgent()
+    ag = agent.DRLAgent()
     print('Hier?')
     al = algo.DRLAlgo(env, ag)
     print('Oder da?')
@@ -53,7 +53,7 @@ def train_default_algo():
 def test_default_algo(use_ref_model: bool = False):
     env = utils_env.Environment()
     # use default params
-    ag = agent.DQNAgent()
+    ag = agent.DRLAgent()
     if use_ref_model:
         print('... Test the agent using reference model ...')
         ag.set_model_path('ref')

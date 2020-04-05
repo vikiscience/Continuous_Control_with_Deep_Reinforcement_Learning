@@ -14,15 +14,10 @@ class MyNavigator(BaseEstimator, ClassifierMixin):
     def __init__(self, num_states: int = const.state_size,
                  num_actions: int = const.action_size,
                  num_episodes: int = const.num_episodes,
-                 eps_0: float = const.eps_0,
-                 eps_decay_factor: float = const.eps_decay_factor,
-                 eps_min: float = const.eps_min,
-                 eps_test: float = const.eps_test,
-                 use_double_dqn: bool = const.use_double_dqn,
                  memory_size: int = const.memory_size,
-                 update_target_each_iter: int = const.update_target_each_iter,
                  gamma: float = const.gamma,
                  batch_size: int = const.batch_size,
+                 expl_noise: int = const.expl_noise,
                  model_learning_rate: float = const.model_learning_rate,
                  model_fc1_num: int = const.model_fc1_num,
                  model_fc2_num: int = const.model_fc2_num
@@ -30,19 +25,14 @@ class MyNavigator(BaseEstimator, ClassifierMixin):
 
         # algo params
         self.num_episodes = num_episodes
-        self.eps_0 = eps_0
-        self.eps_decay_factor = eps_decay_factor
-        self.eps_min = eps_min
-        self.eps_test = eps_test
 
         # agent params
         self.num_states = num_states
         self.num_actions = num_actions
-        self.use_double_dqn = use_double_dqn
         self.memory_size = memory_size
-        self.update_target_each_iter = update_target_each_iter
         self.gamma = gamma
         self.batch_size = batch_size
+        self.expl_noise = expl_noise
 
         # model params
         self.model_learning_rate = model_learning_rate
@@ -50,15 +40,13 @@ class MyNavigator(BaseEstimator, ClassifierMixin):
         self.model_fc2_num = model_fc2_num
 
     def fit(self, i: int, env: utils_env.Environment):
-        self.ag = agent.DQNAgent(state_size, action_size,
-                                 self.use_double_dqn, self.memory_size,
-                                 self.update_target_each_iter, self.gamma, self.batch_size,
-                                 self.model_learning_rate, self.model_fc1_num, self.model_fc2_num)
+        self.ag = agent.DRLAgent(state_size, action_size,
+                                 self.memory_size, self.gamma, self.batch_size,
+                                 self.expl_noise, self.model_learning_rate,
+                                 self.model_fc1_num, self.model_fc2_num)
         self.ag.set_model_path(i)  # save each candidate's model separately
 
-        self.al = algo.DRLAlgo(env, self.ag,
-                               self.num_episodes, self.eps_0, self.eps_decay_factor,
-                               self.eps_min, self.eps_test)
+        self.al = algo.DRLAlgo(env, self.ag, self.num_episodes)
         self.al.set_image_path(i)  # save each candidate's score separately
 
         history = self.al.train(with_close=False)  # do not close the Env so that other agents can be trained
@@ -82,7 +70,7 @@ def grid_search():
 
     print('=' * 30, 'Grid Search', '=' * 30)
 
-    params = {
+    params = {  # todo
         # 'num_episodes': [5, 10],  # test
         'batch_size': [32, 64, 128],
         'use_double_dqn': [True, False],
