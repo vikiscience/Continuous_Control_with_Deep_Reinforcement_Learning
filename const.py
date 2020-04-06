@@ -21,7 +21,7 @@ verbose = False
 high_score = 30
 
 # algo params
-num_episodes = 500 #2000
+num_episodes = 250 #500 #2000
 policy_eval_freq = 50
 
 # agent params
@@ -33,7 +33,7 @@ expl_noise = 0.1
 # model params
 model_learning_rate = 0.0001
 num_fc_actor = 32
-num_fc_critic = 16
+num_fc_critic = 32
 
 
 def myprint(*args, **kwargs):

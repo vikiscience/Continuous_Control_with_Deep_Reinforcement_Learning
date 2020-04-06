@@ -70,17 +70,14 @@ def grid_search():
 
     print('=' * 30, 'Grid Search', '=' * 30)
 
-    params = {  # todo
-        # 'num_episodes': [5, 10],  # test
-        'batch_size': [32, 64, 128],
-        'use_double_dqn': [True, False],
-        'eps_decay_factor': [0.99, 0.95, 0.9],
-        'gamma': [0.95, 0.9],
-        'update_target_each_iter': [2, 4, 8, 16],
+    params = {
+        'num_episodes': [250, 500, 750],
+        'batch_size': [32, 64, 128, 256],
+        'expl_noise': [0.1, 0.3],
+        'gamma': [0.95, 0.99],
         'model_learning_rate': [0.001, 0.0001, 0.00001],
-        'num_fc_actor': [32, 20],
-        'num_fc_critic': [16, 10],
-        'num_episodes': [625, 700, 1000, 2000],
+        'num_fc_actor': [64, 32],
+        'num_fc_critic': [64, 32],
         'memory_size': [20000, 40000]
     }
 
@@ -116,6 +113,13 @@ def grid_search():
     print("==> Best score:", best_score)
     print("==> Best grid:", best_grid_index, best_grid)
 
-    print(df.pivot(index=key_list[0], columns=key_list[1], values=key_list[2]))
+    if len(key_list) == 3:  # better overview as pivot table (only for 2 hyperparams)
+        for c in params.keys():  # if one hyperparam is a list of values
+            if df[c].dtype == object:
+                df[c] = df[c].astype(str)
+
+        print(df.pivot(index=key_list[0], columns=key_list[1], values=key_list[2]))
+    else:
+        print(df)
 
     env.close()  # finally, close the Env
