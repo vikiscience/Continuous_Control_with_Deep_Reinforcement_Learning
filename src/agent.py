@@ -109,17 +109,15 @@ class DRLAgent:
         self.model_path = Path(p.parent, 'model_' + str(i) + p.suffix)
 
     def _model_summary(self, model, title='Model'):
-        print("model_summary --> " + title)
-        print()
-        print("Layer_name" + "\t" * 7 + "Number of Parameters")
-        print("=" * 100)
+        const.myprint("model_summary --> " + title)
+        const.myprint()
+        const.myprint("Layer_name" + "\t" * 7 + "Number of Parameters")
+        const.myprint("=" * 100)
         model_parameters = [layer for layer in model.parameters() if layer.requires_grad]
         layer_name = [child for child in model.children()]
         j = 0
         total_params = 0
-        #print("\t" * 10)
         for i in layer_name:
-            #print()
             param = 0
             try:
                 bias = (i.bias is not None)
@@ -131,7 +129,7 @@ class DRLAgent:
             else:
                 param = model_parameters[j].numel()
                 j = j + 1
-            print(str(i) + "\t" * 3 + str(param))
+            const.myprint(str(i) + "\t" * 3 + str(param))
             total_params += param
-        print("=" * 100)
-        print(f"Total Params:{total_params}")
+        const.myprint("=" * 100)
+        const.myprint(f"Total Params:{total_params}")
