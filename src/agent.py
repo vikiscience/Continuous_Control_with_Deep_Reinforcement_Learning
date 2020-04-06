@@ -37,9 +37,13 @@ class DRLAgent:
         self.num_fc_actor = num_fc_actor
         self.num_fc_critic = num_fc_critic
 
-        self.policy = models.TD3(state_dim=self.num_states, action_dim=self.num_actions,
-                                 max_action=const.max_action, discount=self.gamma,
-                                 num_fc_actor=self.num_fc_actor, num_fc_critic=self.num_fc_critic)
+        self.policy = models.TD3(state_dim=self.num_states,
+                                 action_dim=self.num_actions,
+                                 max_action=const.max_action,
+                                 discount=self.gamma,
+                                 num_fc_actor=self.num_fc_actor,
+                                 num_fc_critic=self.num_fc_critic,
+                                 learning_rate=self.model_learning_rate)
 
         self._model_summary(self.policy.actor, title='Actor')
         self._model_summary(self.policy.critic, title='Critic')
@@ -69,10 +73,13 @@ class DRLAgent:
         const.myprint('Loading model from:', self.model_path)
         # load with architecture
         checkpoint = torch.load(self.model_path)
-        self.policy = models.TD3(state_dim=checkpoint['num_states'], action_dim=checkpoint['num_actions'],
-                                 max_action=const.max_action, discount=checkpoint['gamma'],
+        self.policy = models.TD3(state_dim=checkpoint['num_states'],
+                                 action_dim=checkpoint['num_actions'],
+                                 max_action=const.max_action,
+                                 discount=checkpoint['gamma'],
                                  num_fc_actor=checkpoint['num_fc_actor'],
-                                 num_fc_critic=checkpoint['num_fc_critic'])
+                                 num_fc_critic=checkpoint['num_fc_critic'],
+                                 learning_rate=checkpoint['learning_rate'])
         self.policy.critic.load_state_dict(checkpoint['critic'])
         self.policy.critic_optimizer.load_state_dict(checkpoint['critic_optimizer'])
         self.policy.actor.load_state_dict(checkpoint['actor'])
@@ -89,6 +96,7 @@ class DRLAgent:
                       'gamma': self.gamma,
                       'num_fc_actor': self.num_fc_actor,
                       'num_fc_critic': self.num_fc_critic,
+                      'learning_rate': self.model_learning_rate,
                       'critic': self.policy.critic.state_dict(),
                       'critic_optimizer': self.policy.critic_optimizer.state_dict(),
                       'actor': self.policy.actor.state_dict(),
