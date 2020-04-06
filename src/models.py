@@ -78,13 +78,11 @@ class TD3(object):
     ):
 
         self.actor = Actor(state_dim, action_dim, max_action, num_fc_actor).to(device)
-        self.model_summary(self.actor, title='Actor')
-        self.actor_target = Actor(state_dim, action_dim, max_action, num_fc_actor).to(device)  # copy.deepcopy(self.actor) todo
+        self.actor_target = copy.deepcopy(self.actor)
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=3e-4)
 
         self.critic = Critic(state_dim, action_dim, num_fc_critic).to(device)
-        self.model_summary(self.actor, title='Critic')
-        self.critic_target = Critic(state_dim, action_dim, num_fc_critic).to(device)  # copy.deepcopy(self.critic) todo
+        self.critic_target = copy.deepcopy(self.critic)
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=3e-4)
 
         self.max_action = max_action
@@ -165,31 +163,3 @@ class TD3(object):
         self.actor.load_state_dict(torch.load(filename + "_actor"))
         self.actor_optimizer.load_state_dict(torch.load(filename + "_actor_optimizer"))
         self.actor_target = copy.deepcopy(self.actor)
-
-    def model_summary(self, model, title='Model'):
-        print("model_summary --> " + title)
-        print()
-        print("Layer_name" + "\t" * 7 + "Number of Parameters")
-        print("=" * 100)
-        model_parameters = [layer for layer in model.parameters() if layer.requires_grad]
-        layer_name = [child for child in model.children()]
-        j = 0
-        total_params = 0
-        #print("\t" * 10)
-        for i in layer_name:
-            #print()
-            param = 0
-            try:
-                bias = (i.bias is not None)
-            except:
-                bias = False
-            if not bias:
-                param = model_parameters[j].numel() + model_parameters[j + 1].numel()
-                j = j + 2
-            else:
-                param = model_parameters[j].numel()
-                j = j + 1
-            print(str(i) + "\t" * 3 + str(param))
-            total_params += param
-        print("=" * 100)
-        print(f"Total Params:{total_params}")
