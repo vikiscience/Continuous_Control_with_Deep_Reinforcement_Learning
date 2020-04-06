@@ -41,6 +41,9 @@ class DRLAgent:
                                  max_action=const.max_action, discount=self.gamma,
                                  num_fc_actor=self.num_fc_actor, num_fc_critic=self.num_fc_critic)
 
+        self._model_summary(self.policy.actor, title='Actor')
+        self._model_summary(self.policy.critic, title='Critic')
+
     def act(self, states, t):
         # Select action randomly or according to policy
         if t < self.start_policy_training_iter:
@@ -96,3 +99,31 @@ class DRLAgent:
     def set_model_path(self, i):
         p = self.model_path
         self.model_path = Path(p.parent, 'model_' + str(i) + p.suffix)
+
+    def _model_summary(self, model, title='Model'):
+        print("model_summary --> " + title)
+        print()
+        print("Layer_name" + "\t" * 7 + "Number of Parameters")
+        print("=" * 100)
+        model_parameters = [layer for layer in model.parameters() if layer.requires_grad]
+        layer_name = [child for child in model.children()]
+        j = 0
+        total_params = 0
+        #print("\t" * 10)
+        for i in layer_name:
+            #print()
+            param = 0
+            try:
+                bias = (i.bias is not None)
+            except:
+                bias = False
+            if not bias:
+                param = model_parameters[j].numel() + model_parameters[j + 1].numel()
+                j = j + 2
+            else:
+                param = model_parameters[j].numel()
+                j = j + 1
+            print(str(i) + "\t" * 3 + str(param))
+            total_params += param
+        print("=" * 100)
+        print(f"Total Params:{total_params}")
