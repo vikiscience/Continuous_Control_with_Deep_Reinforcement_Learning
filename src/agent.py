@@ -64,11 +64,34 @@ class DRLAgent:
 
     def load(self):
         const.myprint('Loading model from:', self.model_path)
-        self.policy.load(str(self.model_path))
+        # load with architecture
+        checkpoint = torch.load(self.model_path)
+        self.policy = models.TD3(state_dim=checkpoint['num_states'], action_dim=checkpoint['num_actions'],
+                                 max_action=const.max_action, discount=checkpoint['gamma'],
+                                 num_fc_actor=checkpoint['num_fc_actor'],
+                                 num_fc_critic=checkpoint['num_fc_critic'])
+        self.policy.critic.load_state_dict(checkpoint['critic'])
+        self.policy.critic_optimizer.load_state_dict(checkpoint['critic_optimizer'])
+        self.policy.actor.load_state_dict(checkpoint['actor'])
+        self.policy.actor_optimizer.load_state_dict(checkpoint['actor_optimizer'])
+
+        # change mode (to use only for inference)
+        self.policy.actor.eval()
 
     def save(self):
         const.myprint('Saving model to:', self.model_path)
-        self.policy.save(str(self.model_path))
+        # save with architecture
+        checkpoint = {'num_states': self.num_states,
+                      'num_actions': self.num_actions,
+                      'gamma': self.gamma,
+                      'num_fc_actor': self.num_fc_actor,
+                      'num_fc_critic': self.num_fc_critic,
+                      'critic': self.policy.critic.state_dict(),
+                      'critic_optimizer': self.policy.critic_optimizer.state_dict(),
+                      'actor': self.policy.actor.state_dict(),
+                      'actor_optimizer': self.policy.actor_optimizer.state_dict()
+                      }
+        torch.save(checkpoint, self.model_path)
 
     def set_model_path(self, i):
         p = self.model_path
