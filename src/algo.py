@@ -57,7 +57,7 @@ class DRLAlgo:
                 if np.any(dones):
                     break
 
-            score = np.mean(scores[-1])  # mean of last scores over all agents todo
+            score = np.mean(scores)  # mean of scores over all agents
             print("\r -> Episode: {}/{}, score: {}".format(e + 1, self.num_episodes, score), end='')
             history.append(score)
 
@@ -111,8 +111,9 @@ class DRLAlgo:
     # Runs policy for X episodes and returns average reward
     # A fixed seed is used for the eval environment
     def eval_policy(self, policy, seed, eval_episodes=const.rolling_mean_N):
-        avg_reward = 0.
+        history = []
         for _ in range(eval_episodes):
+            scores = np.zeros(const.num_agents)
             env_info = self.env.reset(train_mode=True)[self.brain_name]
             states = env_info.vector_observations
             while True:
@@ -120,13 +121,10 @@ class DRLAlgo:
                 env_info = self.env.step(actions)[self.brain_name]
                 rewards = env_info.rewards
                 dones = env_info.local_done
-                avg_reward += np.mean(rewards)
+                scores += rewards
                 if np.any(dones):
                     break
+            history.append(np.mean(scores))  # mean of scores over all agents
 
-        avg_reward /= eval_episodes
-
-        const.myprint("---------------------------------------")
-        const.myprint(f"Evaluation over {eval_episodes} episodes: {avg_reward:.3f}")
-        const.myprint("---------------------------------------")
-        return avg_reward
+        avg_score = np.mean(history)  # mean over all episodes
+        return avg_score
