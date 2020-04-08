@@ -41,12 +41,9 @@ def try_random_agent():
 
 def train_default_algo():
     env = utils_env.Environment()
-    print('Woisserdenn?')  # todo
     # use default params
     ag = agent.DRLAgent()
-    print('Hier?')
     al = algo.DRLAlgo(env, ag)
-    print('Oder da?')
     al.train()
 
 
