@@ -13,6 +13,9 @@ class ReplayBuffer:
     def __init__(self, memory_size: int = const.memory_size):
         self.memory = deque(maxlen=memory_size)
 
+    def get_length(self):
+        return len(self.memory)
+
     def append(self, tupel):
         assert len(tupel) == 5
         # state, action, reward, next_state, done = tupel
