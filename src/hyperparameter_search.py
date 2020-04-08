@@ -71,14 +71,14 @@ def grid_search():
     print('=' * 30, 'Grid Search', '=' * 30)
 
     params = {
-        'num_episodes': [250, 500, 750],
-        'batch_size': [32, 64, 128, 256],
-        'expl_noise': [0.1, 0.3],
-        'gamma': [0.95, 0.99],
-        'model_learning_rate': [0.001, 0.0001, 0.00001],
-        'num_fc_actor': [64, 32],
-        'num_fc_critic': [64, 32],
-        'memory_size': [20000, 40000]
+        'num_episodes': [200, 250, 500],  # --> 250
+        'batch_size': [32, 64, 128, 256],  # --> 32
+        'expl_noise': [0.1, 0.3],  # --> 0.3
+        'gamma': [0.95, 0.99],  # --> 0.95
+        'model_learning_rate': [0.001, 0.0001, 0.00001],  # --> 0.001
+        'num_fc_actor': [128, 64, 32],  # --> 128
+        'num_fc_critic': [128, 64, 32],  # --> 128
+        'memory_size': [20000, 40000]  # --> 40000
     }
 
     grid = ParameterGrid(params)

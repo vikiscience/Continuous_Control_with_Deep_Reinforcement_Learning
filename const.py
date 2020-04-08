@@ -21,19 +21,19 @@ verbose = False
 high_score = 30
 
 # algo params
-num_episodes = 250 #500 #2000
+num_episodes = 250
 policy_eval_freq = 50
 
 # agent params
-memory_size = 20000
+memory_size = 40000
 gamma = 0.95
-batch_size = 128
-expl_noise = 0.1
+batch_size = 32
+expl_noise = 0.3
 
 # model params
-model_learning_rate = 0.0001
-num_fc_actor = 32
-num_fc_critic = 32
+model_learning_rate = 0.001
+num_fc_actor = 128
+num_fc_critic = 128
 
 
 def myprint(*args, **kwargs):
