@@ -130,7 +130,7 @@ Deterministic policies are known to overfit to narrow peaks in the value estimat
       
       3.2.6. Compute target action `a' = pi_target(s_{t+1}) + noise`, where `noise ~ clip(N(0, σ'), -c, c)`
       
-      3.2.7. Compute `<target> = r_{t+1} + gamma * (1 - done_{t+1}) * min [ Q_target1(s_{t+1}, a'); Q_target2(s_{t+1}, a') ]`
+      3.2.7. `<target> = r_{t+1} + gamma * (1 - done_{t+1}) * min [ Q_target1(s_{t+1}, a'); Q_target2(s_{t+1}, a') ]`
    
       3.2.6. Perform gradient descent on both current Critics' weights w.r.t. `<target>` with MSE as loss function
    
