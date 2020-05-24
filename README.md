@@ -80,6 +80,6 @@ Agent training is done using Python 3.6 and PyTorch 0.4.0.
    
 ### Model
 
-The problem of agent control was solved by utilizing Deep Reinforcment Learning setting, particularly by implementing a TD3 algorithm.
+The problem of agent control was solved by utilizing Deep Reinforcement Learning setting, particularly by implementing a TD3 algorithm.
 
 For model details, see [report].
