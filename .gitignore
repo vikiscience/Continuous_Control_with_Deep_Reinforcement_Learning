@@ -130,4 +130,8 @@ dmypy.json
 
 # custom
 .idea
+models/*
+!models/model_ref.npy
+output/*
+!output/score_ref.png
 unity-environment.log
